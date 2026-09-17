@@ -1,93 +1,91 @@
 # Elaichi for Cursor
 
-Elaichi gives Cursor one connection to all the SaaS tools your team already uses.
+Elaichi is an agent platform for companies. Connect the software your teams
+already run on, curate toolboxes of MCP tools, and give every person a personal
+endpoint for Cursor. Every agent stays inside the permissions the person it acts
+for already has, and every call is checked and logged.
 
-Install this plugin, sign in once, and the agent can read and act in Salesforce,
-HubSpot, Jira, Linear, Slack, Notion, Google Workspace, GitHub and the rest of
-your stack — without you pasting API keys into a config file or running a local
-server.
+This plugin is the pointer to that endpoint.
 
-## What you get
+## One entry, and everything behind it
 
-**One endpoint, many tools.** Elaichi is a single remote MCP server. Behind it
-sit your connected apps. You do not add a new MCP server every time your team
-adopts a new tool.
+Cursor connects to **one** endpoint: Elaichi. Your applications are connected
+inside Elaichi, not inside Cursor. You never add Jira or Linear or the CRM to
+Cursor — they arrive through the single entry this plugin writes.
 
-**Only the tools you should see.** Elaichi resolves tools against your own
-permissions and the connections that have actually been shared with you. Two
-people on the same team can install this plugin and get different tool lists.
-That is the point.
+Because the calls travel through Elaichi rather than around it:
 
-**Your own login, not a shared key.** Every call runs as you, against your own
-OAuth grant to the underlying app. Nothing is shared through a service account.
+- **Access follows the person**, resolved on each request against their role and
+  shares.
+- **A restricted tool is never advertised**, so it is not something a prompt can
+  reach.
+- **Every call is recorded** in an append-only log, down to the identifier of the
+  record it changed.
+- **Disconnecting an application** in Elaichi removes it from Cursor, with no
+  file to re-edit.
 
-**An audit trail.** Every tool call is logged with who ran it, what it touched,
-and when. Admins can see it, restrict it, or turn a connector off entirely.
+The alternative — a separate MCP server per application, each with its own URL
+and its own credential, on each developer's machine — is the thing this
+replaces.
 
-**Tool search instead of tool sprawl.** Elaichi exposes a small, stable set of
-entry-point tools and lets the agent search the full catalog on demand, so
-Cursor's context does not fill up with hundreds of tool definitions.
+Two people on the same team can install this plugin and see different tools.
+That is not a quirk; it is the boundary doing its job.
 
 ## Installing
 
 1. Open **Customize** in the Cursor sidebar.
 2. Find **Elaichi** and choose **Install**.
-3. Cursor opens your browser. Sign in to Elaichi and approve the access it asks
-   for.
-4. Come back to Cursor. The Elaichi tools appear under **Available Tools**.
+3. Cursor opens your browser. Sign in and approve what it asks for.
+4. Back in Cursor, the tools appear under **Available Tools**.
 
-## How sign-in works
+## Signing in
 
 There is nothing to copy and paste. No API key, no client ID, no client secret,
-no token in a config file.
+no token in a file.
 
-Elaichi speaks OAuth 2.1 with PKCE, and it supports dynamic client registration
-(RFC 7591). In practice that means Cursor registers itself with Elaichi
-automatically the first time you connect. You only see the part that matters:
-a sign-in page, and a screen listing what Cursor is asking for. You approve it,
-and you are done.
+Elaichi speaks OAuth 2.1 with PKCE, and because it supports dynamic client
+registration Cursor registers itself on first contact. You see only the part
+that matters: a sign-in page, and a screen listing what Cursor is asking for.
 
-Access tokens are short-lived and refresh on their own. If you ever want to cut
-Cursor off, revoke it in the Elaichi console and the next call fails — you do
-not have to hunt for a key you pasted somewhere months ago.
+The entry this plugin writes carries the endpoint address and no credential, so
+it is configuration rather than a secret. Access tokens are short-lived and
+refresh on their own. To cut Cursor off, revoke the grant in Elaichi and the
+next call fails — there is no key pasted somewhere months ago to hunt for.
 
-## Connecting your apps
+## Connecting your applications
 
-The plugin connects Cursor to Elaichi. Connecting Elaichi to Salesforce, Jira
-and the rest happens once, in the Elaichi console, and is shared with your
-teammates according to your org's rules.
+This plugin connects Cursor to Elaichi. Connecting Elaichi to your applications
+happens once, in the Elaichi web app, and is shared with teammates according to
+your organization's rules.
 
-If the agent asks for a tool you have no connection for, Elaichi tells it so and
-points you at the console instead of failing silently.
+Ask for a tool you have no connection for and Elaichi says so, and points you at
+the place to fix it, rather than failing quietly.
 
-## Requirements
-
-- An Elaichi account. New organizations start on a 14-day trial; after that
-  Elaichi is a paid product. This plugin is free.
-- Network access from your machine to `https://api.elaichi.ai`.
-
-## Transport
-
-This plugin declares one remote MCP server:
+## What this declares
 
 | | |
 |---|---|
 | Endpoint | `https://api.elaichi.ai/mcp` |
 | Transport | Streamable HTTP |
-| Auth | OAuth 2.1, PKCE (S256), dynamic client registration (RFC 7591) |
+| Authentication | OAuth 2.1, PKCE (S256), dynamic client registration (RFC 7591) |
 
-There is no stdio binary and no npm package to install. Elaichi runs as a
-service; the plugin is just the pointer to it.
+No stdio binary and no npm package. Elaichi runs as a service; this is the
+pointer to it.
+
+## Requirements
+
+- An Elaichi account. New organizations start on a 14-day trial. This plugin is
+  free.
+- Network access from your machine to `https://api.elaichi.ai`.
 
 ## Documentation
 
-Setup notes written for Cursor specifically, including troubleshooting:
-
+Setup written for Cursor specifically, with troubleshooting:
 <https://elaichi.ai/docs/guides/mcp-servers/cursor>
 
 ## Support
 
-Email <support@elaichi.ai>.
+<support@elaichi.ai>
 
 ## License
 
