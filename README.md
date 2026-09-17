@@ -1,8 +1,8 @@
 # Elaichi for Cursor
 
 Elaichi is an agent platform for companies. Connect the software your teams
-already run on, curate toolboxes of MCP tools, and give every person a personal
-endpoint for Cursor. Every agent stays inside the permissions the person it acts
+already run on, curate toolboxes of MCP tools, and point Cursor at one org-wide
+endpoint over OAuth. Every agent stays inside the permissions the person it acts
 for already has, and every call is checked and logged.
 
 This plugin is the pointer to that endpoint.
@@ -11,7 +11,7 @@ This plugin is the pointer to that endpoint.
 
 Cursor connects to **one** endpoint: Elaichi. Your applications are connected
 inside Elaichi, not inside Cursor. You never add Jira or Linear or the CRM to
-Cursor — they arrive through the single entry this plugin writes.
+Cursor, they arrive through the single entry this plugin writes.
 
 Because the calls travel through Elaichi rather than around it:
 
@@ -24,12 +24,11 @@ Because the calls travel through Elaichi rather than around it:
 - **Disconnecting an application** in Elaichi removes it from Cursor, with no
   file to re-edit.
 
-The alternative — a separate MCP server per application, each with its own URL
-and its own credential, on each developer's machine — is the thing this
-replaces.
+The alternative, a separate MCP server per application, each with its own URL
+and its own credential, on each developer's machine, is the thing this replaces.
 
 Two people on the same team can install this plugin and see different tools.
-That is not a quirk; it is the boundary doing its job.
+That is not a quirk, it is the boundary doing its job.
 
 ## Installing
 
@@ -43,14 +42,20 @@ That is not a quirk; it is the boundary doing its job.
 There is nothing to copy and paste. No API key, no client ID, no client secret,
 no token in a file.
 
-Elaichi speaks OAuth 2.1 with PKCE, and because it supports dynamic client
-registration Cursor registers itself on first contact. You see only the part
-that matters: a sign-in page, and a screen listing what Cursor is asking for.
+Elaichi speaks OAuth 2.1 with PKCE, and because the endpoint supports dynamic
+client registration Cursor registers itself on first contact. You see only the
+part that matters, a sign-in page and a screen listing what Cursor is asking for.
 
-The entry this plugin writes carries the endpoint address and no credential, so
-it is configuration rather than a secret. Access tokens are short-lived and
-refresh on their own. To cut Cursor off, revoke the grant in Elaichi and the
-next call fails — there is no key pasted somewhere months ago to hunt for.
+That consent screen is worth reading rather than clicking through. In the
+Elaichi web app permission is asked for at the point of the write. That option
+disappears over MCP, where nothing between you and the model can be trusted to
+have actually asked, so consent moves to the front instead, and whatever you
+tick there stands for every call afterwards.
+
+What this plugin writes carries the endpoint address and no credential, so it is
+configuration rather than a secret. Access tokens are short-lived and refresh on
+their own. To cut Cursor off, revoke the grant in Elaichi and the next call
+fails, there is no key pasted somewhere months ago to hunt for.
 
 ## Connecting your applications
 
@@ -69,7 +74,7 @@ the place to fix it, rather than failing quietly.
 | Transport | Streamable HTTP |
 | Authentication | OAuth 2.1, PKCE (S256), dynamic client registration (RFC 7591) |
 
-No stdio binary and no npm package. Elaichi runs as a service; this is the
+No stdio binary and no npm package. Elaichi runs as a service, this is the
 pointer to it.
 
 ## Requirements

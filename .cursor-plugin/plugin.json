@@ -1,6 +1,6 @@
 {
   "name": "elaichi",
-  "description": "Connect Cursor to one endpoint and reach the software your teams already run on. Every agent stays inside the permissions the person it acts for already has, and every call is checked and logged.",
+  "description": "Point Cursor at one org-wide endpoint over OAuth and reach the software your teams already run on. Every agent stays inside the permissions the person it acts for already has, and every call is checked and logged.",
   "version": "1.0.0",
   "author": {
     "name": "Elaichi",
