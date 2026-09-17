@@ -30,6 +30,21 @@ and its own credential, on each developer's machine, is the thing this replaces.
 Two people on the same team can install this plugin and see different tools.
 That is not a quirk, it is the boundary doing its job.
 
+## What is behind the endpoint
+
+- A catalog of applications supported out of the box, with no tools to author.
+- Curated MCP toolboxes with pinned parameters, renamed tools, and hidden
+  tools.
+- Share a capability, not a password: a colleague uses your connection without
+  seeing it.
+- Permissions checked on every call against the current role of the person the
+  agent acts for.
+- Tool restrictions at role and individual level, and a blocked tool is never
+  advertised to the model.
+- An append-only audit log, with Datadog forwarding.
+- Composite tools: one tool that does a whole job across several connections.
+- Enterprise SSO (SAML/OIDC), SCIM provisioning, group-to-role mapping.
+
 ## Installing
 
 1. Open **Customize** in the Cursor sidebar.

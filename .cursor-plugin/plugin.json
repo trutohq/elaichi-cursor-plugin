@@ -11,12 +11,29 @@
   "license": "MIT",
   "keywords": [
     "mcp",
-    "integrations",
+    "model-context-protocol",
     "agent-platform",
+    "connectors",
+    "integrations",
+    "toolboxes",
     "oauth",
+    "audit-log",
+    "permissions",
     "governance",
-    "audit",
-    "toolboxes"
+    "crm",
+    "helpdesk",
+    "hris",
+    "ats",
+    "accounting",
+    "analytics",
+    "jira",
+    "linear",
+    "slack",
+    "notion",
+    "salesforce",
+    "hubspot",
+    "github",
+    "google-workspace"
   ],
-  "logo": "assets/elaichi-mark-square.png"
+  "logo": "assets/elaichi-logo-square.svg"
 }
