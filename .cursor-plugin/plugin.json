@@ -1,0 +1,23 @@
+{
+  "name": "elaichi",
+  "description": "Connect Cursor to your team's SaaS tools through Elaichi — one governed MCP endpoint for Salesforce, HubSpot, Jira, Slack, Google Workspace and more, with per-user OAuth, role-based access control and a full audit log.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Elaichi",
+    "email": "support@elaichi.ai"
+  },
+  "homepage": "https://elaichi.ai",
+  "repository": "https://github.com/trutohq/elaichi-cursor-plugin",
+  "license": "MIT",
+  "keywords": [
+    "mcp",
+    "integrations",
+    "saas",
+    "oauth",
+    "crm",
+    "productivity",
+    "governance",
+    "audit"
+  ],
+  "logo": "assets/elaichi-mark-square.png"
+}

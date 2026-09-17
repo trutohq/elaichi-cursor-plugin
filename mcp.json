@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "elaichi": {
+      "url": "https://api.elaichi.ai/mcp"
+    }
+  }
+}
