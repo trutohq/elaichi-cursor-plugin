@@ -25,15 +25,9 @@
     "hris",
     "ats",
     "accounting",
-    "analytics",
-    "jira",
-    "linear",
-    "slack",
-    "notion",
-    "salesforce",
-    "hubspot",
-    "github",
-    "google-workspace"
+    "analytics"
   ],
-  "logo": "assets/elaichi-icon.png"
+  "logo": "assets/elaichi-icon.png",
+  "skills": "./skills",
+  "rules": "./rules"
 }

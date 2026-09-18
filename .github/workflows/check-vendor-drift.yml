@@ -1,0 +1,26 @@
+name: Vendored skills drift
+
+# skills/ and rules/elaichi.mdc are a copy of trutohq/elaichi-skills, vendored
+# in (not a submodule) because Cursor installs a plugin from the repo tree it
+# fetches, and a submodule may not be checked out along with it. That repo has
+# no CI job that knows this one exists, so a skill changing there does not
+# automatically reach here — this is the check that closes that gap. It
+# fetches elaichi-skills main and fails, naming the stale files, the moment
+# the vendored copy disagrees. Network-dependent, so it runs on push to main
+# and on a weekly schedule rather than on every pull request.
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node scripts/sync-skills.mjs --check

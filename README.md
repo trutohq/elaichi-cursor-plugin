@@ -5,7 +5,9 @@ already run on, curate toolboxes of MCP tools, and point Cursor at one org-wide
 endpoint over OAuth. Every agent stays inside the permissions the person it acts
 for already has, and every call is checked and logged.
 
-This plugin is the pointer to that endpoint.
+This plugin is the pointer to that endpoint, and it also carries the
+know-how: skills that teach Cursor's agent how to use Elaichi well, installed
+in the same step as the connection.
 
 ## One entry, and everything behind it
 
@@ -45,10 +47,22 @@ That is not a quirk, it is the boundary doing its job.
 - Composite tools: one tool that does a whole job across several connections.
 - Enterprise SSO (SAML/OIDC), SCIM provisioning, group-to-role mapping.
 
+## Skills, not just a connection
+
+Installing this plugin also installs 8 skills and an always-applied rule, so
+Cursor's agent already knows how to use Elaichi well — finding the right
+connected tool on the first search, picking the right account, reading a
+refusal correctly, diagnosing a missing tool instead of guessing — rather than
+learning it call by call in your context window. They are vendored from
+[trutohq/elaichi-skills](https://github.com/trutohq/elaichi-skills), which
+also ships them for Claude Code and any other agent via `npx skills`; that
+repo is where they are authored.
+
 ## Installing
 
 1. Open **Customize** in the Cursor sidebar.
-2. Find **Elaichi** and choose **Install**.
+2. Find **Elaichi** and choose **Install**, then choose a project or user
+   scope.
 3. Cursor opens your browser. Sign in and approve what it asks for.
 4. Back in Cursor, the tools appear under **Available Tools**.
 
