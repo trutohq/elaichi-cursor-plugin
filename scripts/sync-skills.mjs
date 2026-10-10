@@ -33,7 +33,7 @@
 //   node scripts/sync-skills.mjs          # pull the latest copy in and report what changed
 //   node scripts/sync-skills.mjs --check  # fail (without writing) if the vendored copy is stale
 import { execFileSync } from 'node:child_process'
-import { mkdtempSync, rmSync, cpSync, existsSync, readdirSync, statSync, readFileSync } from 'node:fs'
+import { mkdtempSync, rmSync, cpSync, existsSync, readdirSync, statSync, readFileSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, relative } from 'node:path'
 
@@ -73,8 +73,14 @@ try {
   }
 
   for (const { src, dest } of targets) {
+    // The wipe below would take the LOCAL_ONLY notes with it (it did, on the
+    // 0.2.0 sync), so they are read first and put back after the copy.
+    const keep = statSync(dest, { throwIfNoEntry: false })?.isDirectory()
+      ? [...LOCAL_ONLY].filter(name => existsSync(join(dest, name))).map(name => [name, readFileSync(join(dest, name))])
+      : []
     rmSync(dest, { recursive: true, force: true })
     cpSync(src, dest, { recursive: true })
+    for (const [name, content] of keep) writeFileSync(join(dest, name), content)
   }
   console.log('\nVendored copy updated. Review the diff and commit.')
 } finally {

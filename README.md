@@ -49,7 +49,7 @@ That is not a quirk, it is the boundary doing its job.
 
 ## Skills, not just a connection
 
-Installing this plugin also installs 8 skills and an always-applied rule, so
+Installing this plugin also installs 10 skills and an always-applied rule, so
 Cursor's agent already knows how to use Elaichi well — finding the right
 connected tool on the first search, picking the right account, reading a
 refusal correctly, diagnosing a missing tool instead of guessing — rather than
