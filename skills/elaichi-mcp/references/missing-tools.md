@@ -83,9 +83,6 @@ not "how many are restricted" and must never be reported as one. Use
 
 - **No `mcp:tools` on the grant:** no connected tool is offered at all, and
   `search_tools` and `execute_tool` are not even in `tools/list`.
-- **A deleting tool without `mcp:destructive`:** the tool is left out of
-  `search_tools`. Calling it by name gets a scope refusal naming
-  `mcp:destructive`.
 - **An `elaichi__*` operation the role allows but the scope does not:** it is
   not listed, and the server `instructions` name it under "Permitted by your
   role, withheld by this connection's scope".
@@ -123,8 +120,10 @@ Not a connected tool, but the same question. In order:
    show them.
 2. **Step-up operations** (`invite.create`, `invite.delete`,
    `member.set_roles`, `member.delete`, `role.delete`, `team.delete`) are
-   refused on every AI surface. The server `instructions` list them under
-   "Only in the Elaichi app". Send the person to the screen the refusal names.
+   not on the MCP tool list at any scope, and the Elaichi agent refuses them
+   too. The server `instructions` list them under "Only in the Elaichi app".
+   Called by name, one answers with the screen and the steps. Send the person
+   there.
 3. **App-only and never-exposed operations** — API tokens, approving access
    requests, writes to restrictions, SSO, SCIM, domains or logging — are not on
    MCP at all. See
