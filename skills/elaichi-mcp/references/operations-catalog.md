@@ -18,11 +18,11 @@ is `elaichi__connection__list_tools`, and `automation.run.get` is
 |---|---|
 | Role has no `tool:execute` | **Nothing** is listed — no operation and no connected tool. Guest, Auditor and Billing Admin lack it. |
 | Role lacks the operation's permission | Not listed. |
-| Scope | `read` and `sensitive_read` need `mcp:read`. `write` needs `mcp:write`. `destructive` needs `mcp:destructive`. An operation that runs a connected tool also needs `mcp:tools`. |
+| Scope | `read` and `sensitive_read` need `mcp:read`. `write` needs `mcp:write`. `destructive` needs `mcp:destructive`. An operation that runs a connected tool also needs `mcp:tools`, and a delete in the connected app needs nothing more. |
 | Automations off for the org | Every operation marked **(A)** below is hidden. They come back when the plan includes automations **and** an admin turns on "Automations and everything they use" in Settings → Organization. |
 | Apps feature dormant | `bundle.*` is hidden unless Apps is switched on, on top of **(A)**. |
 | MCP Apps not negotiated | `canvas.upsert_widget` is hidden. |
-| Step-up | Marked **(S)**. Listed when the scope covers it, but **every call is refused**. See below. |
+| Step-up | Marked **(S)**. **Not listed at any scope**; a call by name is refused with the steps to do it in the app. See below. |
 
 When the role allows an operation but the grant's scope does not, the
 server `instructions` name it under "Permitted by your role, withheld by this
@@ -32,9 +32,10 @@ allow more on the consent screen. Never call that "unsupported".
 ### Step-up: "Only in the Elaichi app"
 
 Six operations need the person to confirm it is really them (step-up
-re-authentication). No AI surface can ask for that, so they are refused
-**whatever the scope**. More scope will not open them. The refusal names the
-screen:
+re-authentication). No AI surface can ask for that, so they are not on the
+tool list **whatever the scope**. More scope will not open them. The server
+`instructions` name them under "Only in the Elaichi app", and a call by name is
+refused with the screen and the steps:
 
 | Operation | Do it in |
 |---|---|
@@ -114,9 +115,8 @@ share and delete refuse them.
 There is no transfer for a toolbox or template here. `connection.transfer` is
 the only transfer on MCP.
 
-`toolbox.execute` and `synthetic_tool.execute` are charged by the tool they
-actually run: one that deletes in the third-party app needs `mcp:destructive`
-too. A synthetic tool is charged for its worst step.
+`toolbox.execute` and `synthetic_tool.execute` need `mcp:write` and
+`mcp:tools`. A tool that deletes in the third-party app needs nothing more.
 
 ## Access requests, feedback, governance reads
 
@@ -158,7 +158,7 @@ Load the [elaichi-automations](../../elaichi-automations/SKILL.md) skill before 
 - Runs: `automation.run.list`, `automation.run.get`, `automation.run.progress`, `automation.run.transcript`, `automation.run_warnings`.
 - Approvals: `automation.approval.list`, `automation.approval.get`.
 - Webhooks: `automation.webhook.list`, `automation.webhook.samples`.
-- Sessions: `automation.session.list`, `automation.session.get`, `automation.session.messages`, `automation.session.runs`, `automation.session.continue`, `automation.session.close`.
+- Sessions: `automation.session.list`, `automation.session.get`, `automation.session.list_messages`, `automation.session.runs`, `automation.session.continue`, `automation.session.close`.
 - Web access: `web_access_policy.get`, `web_access_policy.check`.
 
 `automation.run`, `automation.enable`, `automation.dry_run`,
