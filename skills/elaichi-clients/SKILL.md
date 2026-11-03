@@ -1,6 +1,6 @@
 ---
 name: elaichi-clients
-description: Connect Claude, ChatGPT, Cursor or any other MCP client to Elaichi — the endpoint, per-client setup, what to tick on the consent screen (scopes, toolboxes), adding a scope later, and why a connected client shows no tools or is missing one.
+description: Connect Claude, ChatGPT, Cursor, Microsoft Copilot or any other MCP client to Elaichi — the endpoint, per-client setup, what to tick on the consent screen (scopes, toolboxes), adding a scope later, and why a connected client shows no tools or is missing one.
 whenToUse: Someone is setting up an AI client against Elaichi, pasting the MCP endpoint, editing mcp.json, choosing scopes or toolboxes on the consent screen, or reporting that their client connected but shows no tools, is missing one, or was refused.
 ---
 
@@ -42,7 +42,7 @@ address. So there is nothing to mint, nothing per toolbox, and nothing per app.
 ## Where the endpoint comes from
 
 In [app.elaichi.ai](https://app.elaichi.ai), click the **Connect** row under
-the sidebar's list (**Connect an AI client** when the automation platform is
+the sidebar's list (**Connect an AI client** when the workflow platform is
 on) and copy the endpoint. Paste it exactly as given.
 
 It is an OAuth endpoint. There is no API key, no bridge command, and no
@@ -77,9 +77,9 @@ for:
 
 | On the consent screen | In an error | What it allows |
 |---|---|---|
-| **Read your organization's data** | `mcp:read` | Everything you can already see in Elaichi. Never secret values. Open its **Details** once: it also covers the audit log, pending invitations, SSO and SCIM settings, verified domains and your API token list (never values). |
-| **Create and change data** | `mcp:write` | Create and change teams, roles, toolboxes, templates and connections, invite people, and share access |
-| **Delete data and remove access** | `mcp:destructive` | Permanently delete data and remove people in Elaichi. Cannot be undone |
+| **Read your organization's data** | `mcp:read` | Everything you can already see in Elaichi. Never secret values. Open its **Details** once: it also covers the audit log, pending invitations, SSO and SCIM settings, verified domains and log-forwarding destinations. |
+| **Create and change data** | `mcp:write` | Create and change teams, roles, toolboxes, templates and connections, and share access. Inviting people and changing a member's roles stay in the Elaichi web app |
+| **Delete data and remove access** | `mcp:destructive` | Permanently delete data and remove access in Elaichi. Cannot be undone. Removing someone from your organization, deleting a team or role, and revoking an invitation or API token stay in the Elaichi web app |
 | **Run your connected tools** | `mcp:tools` | Run tools from the toolboxes chosen in the next step, deleting in your connected apps included |
 
 Every requested scope **starts ticked except Delete**, which always takes a
@@ -121,6 +121,8 @@ Full steps and plan requirements in
 | **Claude** | Customize → Connectors → **Add custom connector**, paste the endpoint | On Team and Enterprise, **only an Owner** can add it. Everyone else then connects to it as themselves. |
 | **ChatGPT** | Plugins → **Add** → **Add custom MCP server**, name it Elaichi, paste the endpoint, then **Create as a plugin** | On Pro you add it yourself. On Business an admin adds it for the workspace. |
 | **Cursor** | Customize → MCPs → **New MCP Server**, add an `elaichi` entry with the endpoint as `url`, then **Authenticate** | Per machine. No `type`, no `auth` block, no command. [Video](https://youtu.be/EwleY4bw0HQ) |
+| **Microsoft Copilot** | Copilot Studio → your agent → **Tools** → **Add a tool** → **New tool** → **Model Context Protocol**, Server URL the endpoint, **OAuth 2.0** → **Dynamic discovery** → **Create**. Then **Create a new connection**, sign in, **Add to agent**. Publish the agent to Microsoft Copilot | Per agent, not per person. Keep end-user credentials so each person signs in as themselves. Shows as unverified: sign-in goes through Copilot Studio's shared host. |
+| **GitHub Copilot (VS Code)** | Command Palette → **MCP: Add Server** → **HTTP**, paste the endpoint, name it `elaichi`, choose **Global** → **Copilot Global**, then sign in when prompted | Per machine. Not a verified client: the consent screen shows the name it registered, marked self-reported. Not the same as Microsoft Copilot, which is the next row. |
 | **Any other MCP client** | Add a remote (HTTP) MCP server with the endpoint URL | Needs dynamic client registration, PKCE and a browser sign-in. Test it. |
 
 Cursor, in full:
@@ -163,11 +165,12 @@ same client at the same endpoint do not see the same tools.
 listed one by one, however few there are. The tool list holds:
 
 - Elaichi's own `elaichi__…` operations — only those the person's role and the
-  grant's scopes allow. Automation, collection, dashboard and knowledge
-  operations appear only where the automation platform is on.
-- `search_tools` to find a connected tool and `execute_tool` to run one —
-  only while the grant reaches at least one connected tool, restricted ones
-  included.
+  grant's scopes allow. Workflow, collection, dashboard and knowledge
+  operations appear only where the workflow platform is on.
+- `search_tools` to find a connected tool, and `read_tool` and `execute_tool`
+  to run one: `read_tool` for a tool that only reads, `execute_tool` for any
+  tool. Each `search_tools` row names the one to use. They appear only while
+  the grant reaches at least one connected tool, restricted ones included.
 - `run_code` — Code Mode, a small JavaScript program that calls several tools
   and returns only what it needs. It is on for every organization; there is no
   client setting for it. Every call inside it passes the same checks as
@@ -186,8 +189,10 @@ text, and nothing is lost that the person needs to act on.
 
 **Client settings are not Elaichi's controls.** No tool name in the list names
 a connected app, so a client's per-tool allow-list or approval can only gate
-`execute_tool`, `run_code` and the two `…__execute` operations as wholes. A
-client's "read actions only" setting does not make connected apps read-only.
+`read_tool`, `execute_tool`, `run_code` and the two `…__execute` operations as
+wholes. `read_tool` is marked read-only, so a client usually runs it without
+asking, while it asks about each `execute_tool` call. A client's "read actions
+only" setting allows `read_tool` and blocks `execute_tool` and `run_code`.
 Per-app and per-tool control lives in Elaichi, as restrictions.
 
 ## Troubleshooting
@@ -199,13 +204,15 @@ Work down this list. The first match is usually the answer.
 | **No tools at all** | The person's role lacks `tool:execute` — Guest, Billing Admin and Auditor do. An admin changes the role. |
 | **Only `elaichi__…` operations, no `search_tools`** | Either **Run your connected tools** was not granted — connect the client again and tick it — or the grant reaches no active connected tool yet: nothing connected, or every account `pending` or `needs_reauth`. (Restricted tools still bring `search_tools`, which names them.) Connect or reconnect an app in Elaichi. |
 | **Chose "Only the ones I pick" and tools vanished** | A picked toolbox was deleted or the person lost access to it. Settings → Connected apps → the app → **Manage toolboxes**. |
-| **`search_tools` and `execute_tool` show up** | Nothing is wrong. Ask the client to search for the tool by name. |
+| **`search_tools`, `read_tool` and `execute_tool` show up** | Nothing is wrong. Ask the client to search for the tool by name. |
 | **One expected tool is missing** | Connection status first, restrictions second. A tool that deletes is not left out for a missing Delete scope: Run your connected tools covers it. Work the ladder in [Diagnosing a missing tool](../elaichi-mcp/references/missing-tools.md). |
 | **Expected Elaichi operations are missing** | The grant lacks the scope they need (Create and change, or Delete), or the person's role lacks the permission. Connect again for a scope; ask an admin for a permission. |
 | **A newly connected app has not appeared** | Most clients cache the tool list. Start a new conversation, reconnect the connector, or re-scan tools. In ChatGPT, select **Refresh tools**. |
 | **A call is refused, naming a scope** | The grant was never given it. Connect the client again and tick it — Settings → Connected apps cannot add a scope. |
 | **A call is refused, naming a permission or `tool:execute`** | Reconnecting will not help. An admin changes the role. |
-| **Every call fails with `subscription_required`** | The organization has no active plan; it is paused until someone subscribes. |
+| **Every call fails with `subscription_required`** | The organization's plan is on hold. Contact support@elaichi.ai. |
+| **Every call fails saying the workspace "is for one person"** | The organization is on the free Personal plan, which only its creator can use (`plan_single_user`). Reconnecting will not help. The person named in the message, or anyone with `billing:manage`, upgrades it to Gold in Settings → Billing. |
+| **Tool calls fail saying the monthly limit is used up** | The organization is on the free Personal plan, which allows 1,000 connected-tool calls a month (UTC; resets on the 1st). The refusal comes with a "See plans" card. Tell the person, link Settings → Billing at app.elaichi.ai, and do not retry. Gold and Black have no such limit. |
 | **Refused because the organization requires two-factor** | Set up two-factor in Elaichi (Settings → Security), then try again. No need to connect the client again. |
 | **Every call fails "no longer an active member"** | The person was removed or suspended. An admin restores them. |
 | **The client asks to sign in again** | The grant was revoked, or the client went 30 days without refreshing. Connect again. |
@@ -214,6 +221,9 @@ Work down this list. The first match is usually the answer.
 | **ChatGPT sign-in loops or never returns** | The plan may not include custom MCP servers. On Business, an admin adds it for the workspace. |
 | **Cursor never shows the server** | Invalid JSON, usually a trailing comma or a missing brace. Check the file is valid JSON. |
 | **Cursor shows no sign-in prompt** | Elaichi has not been authenticated yet. Open Customize → MCPs, find Elaichi under **Needs Attention**, and select **Authenticate** again. |
+| **Microsoft Copilot agent never calls Elaichi tools** | In Copilot Studio, check the agent's **Tools** page lists Elaichi and its connection is signed in, then publish again. Teams keeps a published agent cached: in Teams, sign out and back in or refresh the browser, and say **Start over** in an old chat. Also check the agent is published to Microsoft Copilot (**Channels** → **Teams and Microsoft Copilot**). |
+| **GitHub Copilot does not list the server, or it cannot start** | In VS Code, check the endpoint, then which configuration file holds the entry (the same server ID must not be used twice in one destination). Run **MCP: List Servers**, select Elaichi and choose **Show Output**. |
+| **GitHub Copilot connects but shows no Elaichi tools** | Confirm the server is enabled, then open **Chat: Open Customizations** → **Tools** and check Elaichi's tools are ticked. After a fix, run **Restart Server** and retry. |
 
 ## Disconnecting
 
@@ -226,7 +236,7 @@ depends on the client.
 
 | Document | Topics |
 |---|---|
-| [Setting up each client](./references/per-client-setup.md) | Claude, ChatGPT, Cursor and other MCP clients in full, with plan requirements and the exact configuration each needs |
+| [Setting up each client](./references/per-client-setup.md) | Claude, ChatGPT, Cursor, Microsoft Copilot and other MCP clients in full, with plan requirements and the exact configuration each needs |
 
 ## Companion skills
 

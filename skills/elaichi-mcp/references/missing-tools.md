@@ -82,7 +82,7 @@ not "how many are restricted" and must never be reported as one. Use
 ## 4. Is it a scope gap?
 
 - **No `mcp:tools` on the grant:** no connected tool is offered at all, and
-  `search_tools` and `execute_tool` are not even in `tools/list`.
+  `search_tools`, `read_tool` and `execute_tool` are not even in `tools/list`.
 - **An `elaichi__*` operation the role allows but the scope does not:** it is
   not listed, and the server `instructions` name it under "Permitted by your
   role, withheld by this connection's scope".
@@ -115,9 +115,9 @@ Also page. A result whose `matched` is larger than its page carries
 
 Not a connected tool, but the same question. In order:
 
-1. **Automations, collections, dashboards and knowledge** are hidden unless
-   the org has automations on. That is not a scope gap; more scope will not
-   show them.
+1. **Workflows, collections, dashboards and knowledge** are hidden unless
+   the org is on Black (the trial counts) and has workflows switched on.
+   That is not a scope gap; more scope will not show them.
 2. **Step-up operations** (`invite.create`, `invite.delete`,
    `member.set_roles`, `member.delete`, `role.delete`, `team.delete`) are
    not on the MCP tool list at any scope, and the Elaichi agent refuses them

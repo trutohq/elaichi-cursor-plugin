@@ -1,6 +1,6 @@
 ---
 name: elaichi-mcp
-description: Use the Elaichi MCP server well — find a connected tool with search_tools, run it with execute_tool or run_code, pick the right account, read a refusal or "restricted" result, ask an admin for access, and work out why a tool is missing. For any MCP client (Claude, ChatGPT, Cursor and others).
+description: Use the Elaichi MCP server well — find a connected tool with search_tools, run it with read_tool, execute_tool or run_code, pick the right account, read a refusal or "restricted" result, ask an admin for access, and work out why a tool is missing. For any MCP client (Claude, ChatGPT, Cursor, Microsoft Copilot and others).
 whenToUse: An Elaichi MCP server is attached and you need to act on the user's connected apps, or explain why a tool is missing, refused, restricted, or asking which account to use. Read before the first search_tools call.
 ---
 
@@ -21,23 +21,30 @@ connected. It means you have not searched yet.
 
 ```
 search_tools({ query: "create deal" })   →  the names
-execute_tool({ name, arguments })        →  runs one
+read_tool({ name, arguments })           →  runs one, if it only reads
+execute_tool({ name, arguments })        →  runs one, any kind
 ```
+
+Each `search_tools` row says which runner to use: `runner` is `"read_tool"` or
+`"execute_tool"`. Use the one it names. `read_tool` is marked read-only, so
+Claude, ChatGPT and other clients usually run it without asking the person to
+approve each call. `execute_tool` is marked destructive, so most clients ask
+first.
 
 Those meta-tools are the only door to a connected tool. Elaichi's own
 operations (`elaichi__connection__list`, `elaichi__member__get`, …) *are*
 listed one by one, and `search_tools` never returns one.
 
-`search_tools` and `execute_tool` themselves appear only when there is
-something to search. If they are missing, see
+`search_tools`, `read_tool` and `execute_tool` themselves appear only when
+there is something to search. If they are missing, see
 [the missing-tool ladder](#when-an-expected-tool-is-missing).
 
 ## Two namespaces, two costs
 
 | Namespace | What it is | What one call costs |
 |---|---|---|
-| `elaichi__*` | Runs Elaichi itself — members, teams, connections, toolboxes, automations, audit | One internal call. Fast and cheap. |
-| Connected tools (via `execute_tool`) | The user's real Slack, Jira, HubSpot, Notion | A restriction check, a credential fetch, sometimes a token refresh, then a live third-party call. Seconds, and it spends the vendor's rate limit. |
+| `elaichi__*` | Runs Elaichi itself — members, teams, connections, toolboxes, workflows, audit | One internal call. Fast and cheap. |
+| Connected tools (via `read_tool` or `execute_tool`) | The user's real Slack, Jira, HubSpot, Notion | A restriction check, a credential fetch, sometimes a token refresh, then a live third-party call. Seconds, and it spends the vendor's rate limit. |
 
 `elaichi__toolbox__execute`, `elaichi__synthetic_tool__execute` and
 `elaichi__automation__run` cost the second kind, because they run connected
@@ -78,7 +85,10 @@ Read the result, not just the names:
 - **`next_cursor`** means more matches. A tool not on page one is not ruled
   out.
 - **`toolbox`** narrows a search to one toolbox; **`detail: "summary"`** skims
-  without schemas (search again in full before calling).
+  without schemas. A summary row can be called with its `required` keys.
+- **`x_truncated`** on a schema means it was shortened: optional parameters
+  may lack descriptions, and `omitted_properties` names any left out. Search
+  with the tool's exact name to get its whole schema.
 
 **Pass back exactly the name `search_tools` gave you.** Do not rebuild a name
 from the connector and the verb, and do not tidy one. Names are made unique on
@@ -177,6 +187,7 @@ written for the person. Show it as it is. Then:
 | A scope (`mcp:destructive`) | The user connects Elaichi again from their AI client and allows it on the consent screen. |
 | A restriction (`structuredContent.error`, or a `restricted` search row) | Offer to ask an admin: `elaichi__access_request__create` with `request_access.arguments`, copied exactly. If `pending_request_id` is set, they already asked. |
 | "Only in the Elaichi app" (step-up) | Send them to the screen it names. More scope will not help. |
+| A plan limit (the monthly tool-call limit is used up; a "See plans" card, `reason: "plan_limit"`) | Tell the person and link the plan page (Settings → Billing). Nobody can approve a used-up allowance, and a retry cannot work: it resets on the 1st (UTC). |
 
 You cannot grant any of these. **Do not look for another route to the same
 effect** — working around governance is the one thing this endpoint exists to
@@ -191,9 +202,17 @@ the restriction object, and step-up:
 
 Results are redacted and capped, and a cap that fires shows in the payload:
 strings at 32,000 characters (ending `…[truncated: kept N of M chars]`),
-arrays at 200 items, objects at 200 keys, depth 8. Then the result carries
-`elaichi_truncated: true` as its first key. A vendor's own `truncated` field
-is unrelated.
+arrays at 200 items, objects at 200 keys, depth 8. A whole result is also kept
+under 30,000 characters where it can be: long prose is shortened, and
+`elaichi_note` says so. Links, ids, cursors, tokens and other plain-ASCII
+strings without spaces are never shortened this way, and rows are never
+dropped. A result that is still large carries only the note. Any cut sets
+`elaichi_truncated: true` as the result's first key. A vendor's own
+`truncated` field is unrelated.
+
+To get less, ask for fewer records when the tool has a limit or page argument.
+To read a connected app's result in full, use `run_code`: a program reads it
+whole and returns only what you need.
 
 Page deliberately (`cursor`) and ask narrow questions rather than pulling a
 large connector's whole schema set.
@@ -213,7 +232,7 @@ A client that supports MCP Apps gets two more tools:
   a refusal they can ask about, a stopped action, a saved file), call it with
   that `card_id` before you reply. It shows what Elaichi decided and runs
   nothing. Cards expire after 10 minutes.
-- **`show_object`** — when you finish building an automation, dashboard,
+- **`show_object`** — when you finish building a workflow, dashboard,
   collection or knowledge base, show it once. Do not call it after each edit.
 
 ## What the catalog will not do
@@ -237,9 +256,9 @@ synthetic tools, and reading and writing a toolbox's skill.
 
 The whole catalog by area: [Control-plane operations](./references/operations-catalog.md).
 
-## Automations, collections, dashboards, knowledge
+## Workflows, collections, dashboards, knowledge
 
-These appear only when the org has automations turned on. Load
+These appear only when the org has workflows turned on. Load
 **elaichi-automations** before touching `elaichi__automation__*`, and
 **elaichi-data** before `elaichi__collection__*`, `elaichi__dashboard__*` or
 `elaichi__knowledge__*`.
@@ -287,10 +306,10 @@ arguments. People can also write to support@elaichi.ai.
 
 | Document | Topics |
 |---|---|
-| [Tool discovery](./references/tool-discovery.md) | `search_tools` arguments and result fields, ranking, restricted rows, `execute_tool`, files, `run_code` |
+| [Tool discovery](./references/tool-discovery.md) | `search_tools` arguments and result fields, ranking, restricted rows, `read_tool`, `execute_tool`, files, `run_code` |
 | [Connections and accounts](./references/connections-and-accounts.md) | The `connection` argument, account labels, the account picker, `elaichi://` resources, status values, connecting |
 | [Diagnosing a missing tool](./references/missing-tools.md) | The five-rung ladder with the trap at each rung, and missing `elaichi__*` operations |
-| [Scopes and refusals](./references/scopes-and-refusals.md) | OAuth scopes, toolbox selection, the five kinds of refusal, restrictions and access requests, step-up, rate limits |
+| [Scopes and refusals](./references/scopes-and-refusals.md) | OAuth scopes, toolbox selection, the six kinds of refusal, restrictions and access requests, step-up, rate limits |
 | [Control-plane operations](./references/operations-catalog.md) | Every `elaichi__*` operation by area, and what is never on MCP |
 
 ## Companion skills
