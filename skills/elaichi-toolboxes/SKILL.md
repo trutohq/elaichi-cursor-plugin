@@ -69,8 +69,8 @@ Put in it:
   options, label sets and formats the tools expect.
 - **Rules**: "always set Priority", "never close a ticket without a comment",
   "ask before writing to the live board".
-- **Which automations use it**, so nobody renames a field from under them.
-  An automation reaches tools only through stored toolboxes it names, never
+- **Which workflows use it**, so nobody renames a field from under them.
+  A workflow reaches tools only through stored toolboxes it names, never
   **All tools** (see [elaichi-automations](../elaichi-automations/SKILL.md)).
 
 How to write it so it works:
@@ -133,6 +133,10 @@ Writing good names and descriptions: [Curating a toolbox](./references/curating.
 
 ## What sharing at `use` actually does
 
+Sharing needs Gold or Black. On the free Personal plan a toolbox serves only
+its owner over MCP, and a share is refused with `feature_not_available`
+naming Gold; removing an old share always works.
+
 **Sharing a toolbox at `use` delegates execution.** The recipient runs its
 tools over the connections its entries pin, **without any grant on those
 connections**. They never see a credential, cannot reach the account anywhere
@@ -161,6 +165,9 @@ not whoever shared the toolbox:
 | owner | Also delete and transfer |
 
 ## Synthetic tools
+
+Every plan includes synthetic tools. The free Personal plan holds up to 10 in
+the organization; Gold and Black have no limit.
 
 Several calls chained into one, so the agent sees one decisive tool instead of
 orchestrating three. *Look the customer up in the CRM, then open a ticket for
@@ -227,6 +234,6 @@ toolboxes is briefed on each one's skill and can read it as the resource
 - **elaichi-connections**: the accounts a toolbox binds to.
 - **elaichi-mcp**: how the tools you curate reach an agent.
 - **elaichi-governance**: why a tool you added is restricted or missing.
-- [elaichi-automations](../elaichi-automations/SKILL.md): automations run their
-  tools through stored toolboxes, so a toolbox an automation uses needs a skill
+- [elaichi-automations](../elaichi-automations/SKILL.md): workflows run their
+  tools through stored toolboxes, so a toolbox a workflow uses needs a skill
   that says so.
