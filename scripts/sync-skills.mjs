@@ -1,5 +1,7 @@
-// Vendors `skills/` and `rules/elaichi.mdc` from the source of truth,
-// trutohq/elaichi-skills, into this repo.
+// Vendors `skills/` from the source of truth, trutohq/elaichi-skills, into
+// this repo, and regenerates `rules/elaichi.mdc` from the vendored
+// elaichi-conventions skill (see scripts/generate-rule.mjs for why the rule is
+// derived here rather than copied).
 //
 // DIRECTION OF COPY: elaichi-skills -> elaichi-cursor-plugin, always. This
 // repo's `skills/` and `rules/` are a VENDORED, READ-ONLY COPY, not authored
@@ -30,16 +32,22 @@
 // naming the stale files, the moment the two disagree.
 //
 // Usage:
-//   node scripts/sync-skills.mjs          # pull the latest copy in and report what changed
-//   node scripts/sync-skills.mjs --check  # fail (without writing) if the vendored copy is stale
+//   node scripts/sync-skills.mjs              # pull the latest copy in and report what changed
+//   node scripts/sync-skills.mjs --check      # fail (without writing) if the vendored copy is stale
+//   node scripts/sync-skills.mjs --ref BRANCH # vendor an elaichi-skills branch instead of main,
+//                                             # to ship a pull request here alongside one there
 import { execFileSync } from 'node:child_process'
 import { mkdtempSync, rmSync, cpSync, existsSync, readdirSync, statSync, readFileSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, relative } from 'node:path'
+import { renderRule, SOURCE as RULE_SOURCE, OUT as RULE_OUT } from './generate-rule.mjs'
 
 const root = join(import.meta.dirname, '..')
 const SOURCE_REPO = 'https://github.com/trutohq/elaichi-skills.git'
 const check = process.argv.includes('--check')
+const refIndex = process.argv.indexOf('--ref')
+const ref = refIndex === -1 ? 'main' : process.argv[refIndex + 1]
+if (!ref) throw new Error('--ref needs a branch name')
 
 // Local-only documentation that explains the vendoring, not part of the
 // vendored content itself — elaichi-skills has no such file, and it should
@@ -48,23 +56,24 @@ const LOCAL_ONLY = new Set(['VENDORED.md'])
 
 const tmp = mkdtempSync(join(tmpdir(), 'elaichi-skills-sync-'))
 try {
-  execFileSync('git', ['clone', '--depth', '1', '--quiet', SOURCE_REPO, tmp], { stdio: 'pipe' })
+  execFileSync('git', ['clone', '--depth', '1', '--quiet', '--branch', ref, SOURCE_REPO, tmp], { stdio: 'pipe' })
 
-  const targets = [
-    { src: join(tmp, 'skills'), dest: join(root, 'skills') },
-    { src: join(tmp, 'rules', 'elaichi.mdc'), dest: join(root, 'rules', 'elaichi.mdc') },
-  ]
+  const targets = [{ src: join(tmp, 'skills'), dest: join(root, 'skills') }]
 
   const changed = []
   for (const { src, dest } of targets) collectDiffs(src, dest, changed)
+
+  const rule = renderRule(readFileSync(join(tmp, RULE_SOURCE), 'utf-8'))
+  const ruleDest = join(root, RULE_OUT)
+  if (!existsSync(ruleDest) || readFileSync(ruleDest, 'utf-8') !== rule) changed.push(RULE_OUT)
   changed.sort()
 
   if (changed.length === 0) {
-    console.log('Vendored skills/ and rules/elaichi.mdc already match trutohq/elaichi-skills main. Nothing to do.')
+    console.log(`Vendored skills/ and the generated rules/elaichi.mdc already match trutohq/elaichi-skills ${ref}. Nothing to do.`)
     process.exit(0)
   }
 
-  console.log(`${changed.length} vendored file(s) differ from trutohq/elaichi-skills main:`)
+  console.log(`${changed.length} vendored file(s) differ from trutohq/elaichi-skills ${ref}:`)
   for (const f of changed) console.log(`  ${f}`)
 
   if (check) {
@@ -82,6 +91,7 @@ try {
     cpSync(src, dest, { recursive: true })
     for (const [name, content] of keep) writeFileSync(join(dest, name), content)
   }
+  writeFileSync(ruleDest, rule)
   console.log('\nVendored copy updated. Review the diff and commit.')
 } finally {
   rmSync(tmp, { recursive: true, force: true })

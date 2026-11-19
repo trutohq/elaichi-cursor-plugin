@@ -1,6 +1,7 @@
 name: Vendored skills drift
 
-# skills/ and rules/elaichi.mdc are a copy of trutohq/elaichi-skills, vendored
+# skills/ is a copy of trutohq/elaichi-skills (and rules/elaichi.mdc is
+# generated from it), vendored
 # in (not a submodule) because Cursor installs a plugin from the repo tree it
 # fetches, and a submodule may not be checked out along with it. That repo has
 # no CI job that knows this one exists, so a skill changing there does not
