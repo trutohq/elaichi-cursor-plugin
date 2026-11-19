@@ -3,8 +3,8 @@
 Everything under `skills/` in this repo is a **copy**, not the source. The
 source of truth is [trutohq/elaichi-skills](https://github.com/trutohq/elaichi-skills)
 — edit a skill there, merge it, then run `node scripts/sync-skills.mjs` in
-*this* repo to pull the change in. `rules/elaichi.mdc` is vendored the same
-way; see `rules/VENDORED.md`.
+*this* repo to pull the change in. `rules/elaichi.mdc` is generated from the
+vendored elaichi-conventions skill by the same script; see `rules/VENDORED.md`.
 
 Direction of copy: `elaichi-skills` → `elaichi-cursor-plugin`, always.
 

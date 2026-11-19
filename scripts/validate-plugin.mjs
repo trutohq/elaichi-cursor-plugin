@@ -22,7 +22,7 @@
 // sees what's committed HERE. If you're changing the MCP endpoint URL, the
 // author contact, or the brand pitch, check trutohq/elaichi-skills too —
 // nothing here will catch drift between the two beyond the vendored
-// skills/rules tree, which scripts/sync-skills.mjs and
+// skills tree and the rule derived from it, which scripts/sync-skills.mjs and
 // .github/workflows/check-vendor-drift.yml cover separately.
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { isAbsolute, join, relative } from 'node:path'

@@ -1,7 +1,6 @@
 ---
 name: elaichi-toolboxes
-description: Build and share toolboxes in Elaichi — pick tools for a job, rename them, lock parameters, stamp from a template, share at "use" (delegation), write the toolbox skill that tells agents how to use it, and build multi-step synthetic tools.
-whenToUse: Someone is building, sharing or debugging a toolbox, template or synthetic tool, writing or reading a toolbox skill, deciding between a toolbox and a template, or asking what happens when they share one with a colleague.
+description: Build and share toolboxes in Elaichi — pick tools for a job, rename them, lock parameters, stamp from a template, share at "use" (delegation), write the toolbox skill that tells agents how to use it, and build multi-step synthetic tools. Use when someone is building, sharing or debugging a toolbox, template or synthetic tool, deciding between a toolbox and a template, or asks what happens when they share one with a colleague.
 ---
 
 # Toolboxes, templates, skills and synthetic tools
@@ -203,8 +202,10 @@ There is no publishing step. Any `use` grantee reaches a toolbox through the
 MCP endpoint, and it always runs **as them**.
 
 When a person connects an MCP client, the consent screen asks which toolboxes it
-may reach: **All my tools**, or **Only the ones I pick**. They change it later in
-**Settings → Connected apps → Manage toolboxes**. A client limited to picked
+may reach, in a Toolboxes row under Use your connected apps: **Everything I can use**
+(including system toolboxes), or **Only the ones I pick**. They change it later in
+**Settings → Connected apps → Edit toolboxes** (**Everything I can use** or
+**Only these toolboxes**). A client limited to picked
 toolboxes is briefed on each one's skill and can read it as the resource
 `elaichi://toolbox/{id}/skill`.
 
